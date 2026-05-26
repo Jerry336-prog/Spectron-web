@@ -39,7 +39,7 @@ export default function About() {
     },
     {
       title: "A connected digital campus",
-      description: "Unifies Lubbock Christian University's micro-economy by facilitating instant peer-to-peer discoveries, student vendor showcases, and localized enterprise connectivity.",
+      description: "Unifies Lead City University's micro-economy by facilitating instant peer-to-peer discoveries, student vendor showcases, and localized enterprise connectivity.",
       icon: Compass,
       tag: "COMMUNITY"
     }

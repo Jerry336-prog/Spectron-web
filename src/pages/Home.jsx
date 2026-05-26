@@ -5,11 +5,15 @@ import Vision from '../dev4/components/Vision'
 
 export default function Home() {
   return (
-    <div>
+    <div className="bg-[#030712]">
       <Hero />
       <NexusMap />
-      <Features />
-      <Vision />
+      <div id="features">
+        <Features />
+      </div>
+      <div id="vision">
+        <Vision />
+      </div>
     </div>
   )
 }

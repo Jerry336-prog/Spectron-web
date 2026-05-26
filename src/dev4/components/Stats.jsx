@@ -113,7 +113,7 @@ export default function Stats() {
             Network Impact in Numbers
           </h2>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed font-light">
-            Real-time insights showing the scale of discovery and engagement happening daily across the Lubbock Christian University campus.
+            Real-time insights showing the scale of discovery and engagement happening daily across the Lead City University campus.
           </p>
         </motion.div>
 
