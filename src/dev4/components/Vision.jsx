@@ -1,211 +1,204 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { Rocket, MapPin, ArrowUpRight, CheckCircle2, TrendingUp, Sparkles } from 'lucide-react';
-import { fadeInUp, staggerContainer } from '../../shared/utils/animations';
-
-const visionItems = [
-  {
-    icon: Rocket,
-    title: 'The Digital Infrastructure for Campus Commerce',
-    description: 'Spectron is not just a listing directory. It is the underlying real-time visibility engine designed to power campus ecosystems everywhere.',
-  },
-  {
-    icon: MapPin,
-    title: 'Starting at Lead City University',
-    description: 'LCU is our proving ground. Over 500 active students, 10 lecturers, and 100 campus businesses are already using Spectron daily.',
-  },
-  {
-    icon: ArrowUpRight,
-    title: 'Expanding Beyond Campus',
-    description: 'The same visibility gaps exist in campuses and hyper-local hubs worldwide. Spectron is architected to scale globally.',
-  },
-];
-
-const stats = [
-  { value: '100+', label: 'Verified LCU Businesses', description: 'Active side hustles, cafes, print shops, and services.' },
-  { value: '500+', label: 'Registered LCU Students', description: 'Finding services, making inquiries, and exploring daily.' },
-  { value: '1000+', label: 'Ecosystem Connections', description: 'Active real-time discoverability matches surfaced.' },
-];
+import { motion } from 'framer-motion'
+import { Radio, Signal, Shield, ArrowRight } from 'lucide-react'
+import About from './About'
+import Stats from './Stats'
+import FutureVision from './FutureVision'
 
 export default function Vision() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { amount: 0.15, once: true });
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.6, ease: 'easeOut' }
+    }
+  }
+
+  // Live node mock data for campus mapping visualization
+  const activeNodes = [
+    { name: 'SUB (Student Union)', active: true, load: '78%' },
+    { name: 'University Store', active: true, load: '45%' },
+    { name: 'Campus Coffee Hub', active: true, load: '92%' },
+    { name: 'Quad Food Pop-up', active: false, load: '0%' },
+    { name: 'LCU Athletic Zone', active: true, load: '30%' },
+    { name: 'Academic Library Café', active: false, load: '0%' }
+  ]
 
   return (
-    <section
-      id="about"
-      ref={ref}
-      className="relative py-24 lg:py-32 overflow-hidden"
-      style={{ backgroundColor: '#0A0A1A' }}
-    >
-      <div
-        className="absolute top-0 left-0 w-full h-px"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(0, 61, 165, 0.2), transparent)' }}
-      />
+    <div className="bg-[#030712] text-gray-300">
+      {/* 1. About Section */}
+      <About />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        {/* Core Vision */}
-        <div className="grid lg:grid-cols-2 gap-16 items-center mb-28">
-          <motion.div
-            variants={staggerContainer}
+      {/* 2. Why Spectron Section */}
+      <section id="why-spectron" className="py-24 bg-[#060a13] relative overflow-hidden border-t border-gray-900">
+        {/* Glow Element */}
+        <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-[#3c82f6]/4 blur-[130px] rounded-full pointer-events-none" />
+
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div 
             initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-            className="space-y-8"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            variants={containerVariants}
+            className="max-w-4xl mx-auto text-center mb-20"
           >
-            <motion.div
-              variants={fadeInUp}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-medium tracking-wider uppercase"
-              style={{
-                borderColor: 'rgba(0, 61, 165, 0.3)',
-                backgroundColor: 'rgba(0, 61, 165, 0.08)',
-                color: '#0088FF',
-                fontFamily: "'Inter', sans-serif",
-              }}
+            <motion.span 
+              variants={itemVariants}
+              className="text-xs font-mono tracking-[0.2em] text-[#3c82f6] uppercase border border-[#3c82f6]/20 px-4 py-1.5 rounded-full bg-[#3c82f6]/5"
             >
-              <Sparkles className="w-3 h-3" />
-              The Mission
-            </motion.div>
-
-            <motion.h2
-              variants={fadeInUp}
-              className="text-4xl sm:text-5xl font-bold tracking-tight text-white"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              System Analysis
+            </motion.span>
+            <motion.h2 
+              variants={itemVariants}
+              className="text-3xl md:text-5xl font-extrabold text-white mt-8 mb-6 tracking-tight leading-tight"
             >
               Why Spectron?
             </motion.h2>
-
-            <motion.p
-              variants={fadeInUp}
-              className="text-base leading-relaxed text-[#94A3B8]"
-              style={{ fontFamily: "'Inter', sans-serif" }}
+            <motion.p 
+              variants={itemVariants}
+              className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed"
             >
-              Today, talented people, side hustles, and campus services remain invisible online because discovery is fragmented across too many social media channels and chats. 
-              Students rely on word-of-mouth or scroll endless groups to find a tutor, barber, laundry operator, or vendor.
-            </motion.p>
-
-            <motion.p
-              variants={fadeInUp}
-              className="text-base leading-relaxed text-[#94A3B8]"
-              style={{ fontFamily: "'Inter', sans-serif" }}
-            >
-              Spectron ends the search fatigue. By indexing campus services into a single real-time network, students discover nearby options instantly, and businesses get discovered without chasing attention.
+              Traditional campus discoverability is broken. Students miss active local operations, and merchants suffer from fragmented, short-lived channels.
             </motion.p>
           </motion.div>
 
-          {/* Key pillars */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            animate={isInView ? 'visible' : 'hidden'}
-            className="space-y-6"
-          >
-            <div className="p-6 rounded-xl border border-[#1E293B] flex gap-4" style={{ backgroundColor: 'rgba(17,17,40,0.4)' }}>
-              <div className="w-10 h-10 rounded-lg bg-[rgba(0,61,165,0.2)] flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-[#0088FF]" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-white mb-1" style={{ fontFamily: "'Sora', sans-serif" }}>The Discovery Gap</h3>
-                <p className="text-sm text-[#94A3B8]" style={{ fontFamily: "'Inter', sans-serif" }}>Eliminating scattered social posts. Making every side hustle indexable and reachable.</p>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-xl border border-[#1E293B] flex gap-4" style={{ backgroundColor: 'rgba(17,17,40,0.4)' }}>
-              <div className="w-10 h-10 rounded-lg bg-[rgba(0,61,165,0.2)] flex items-center justify-center shrink-0">
-                <TrendingUp className="w-5 h-5 text-[#0088FF]" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-white mb-1" style={{ fontFamily: "'Sora', sans-serif" }}>Empowering Student Economy</h3>
-                <p className="text-sm text-[#94A3B8]" style={{ fontFamily: "'Inter', sans-serif" }}>Connecting student demands directly with student skills, fostering campus-wide micro-commerce.</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Stats / Counters */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-          className="grid md:grid-cols-3 gap-8 border-y border-[#1E293B] py-16 mb-28"
-        >
-          {stats.map((stat) => (
-            <motion.div
-              key={stat.label}
-              variants={fadeInUp}
-              className="text-center md:text-left space-y-3"
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 max-w-6xl mx-auto items-center">
+            {/* Left: Problems Grid */}
+            <motion.div 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={containerVariants}
+              className="lg:col-span-6 space-y-6"
             >
-              <div
-                className="text-5xl lg:text-6xl font-bold tracking-tight text-white"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              <motion.div 
+                variants={itemVariants}
+                className="p-6 rounded-2xl bg-[#090d16] border border-gray-900 hover:border-gray-800 transition-colors"
               >
-                {stat.value}
-              </div>
-              <div
-                className="text-sm font-semibold text-[#0088FF]"
-                style={{ fontFamily: "'Sora', sans-serif" }}
-              >
-                {stat.label}
-              </div>
-              <p
-                className="text-xs text-[#64748B] max-w-xs leading-relaxed mx-auto md:mx-0"
-                style={{ fontFamily: "'Inter', sans-serif" }}
-              >
-                {stat.description}
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Future Vision Grid */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-          className="grid lg:grid-cols-3 gap-8 max-w-5xl mx-auto"
-        >
-          {visionItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={item.title}
-                variants={fadeInUp}
-                className="p-8 rounded-xl text-center"
-                style={{
-                  backgroundColor: 'rgba(17, 17, 40, 0.5)',
-                  border: '1px solid rgba(0, 61, 165, 0.1)',
-                }}
-              >
-                <div
-                  className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-6"
-                  style={{
-                    backgroundColor: 'rgba(0, 61, 165, 0.1)',
-                    border: '1px solid rgba(0, 61, 165, 0.15)',
-                  }}
-                >
-                  <Icon className="w-6 h-6 animate-pulse" style={{ color: '#0088FF' }} />
+                <div className="flex gap-4 items-start">
+                  <div className="p-2.5 rounded-lg bg-gray-950 border border-gray-800 text-gray-400 mt-1">
+                    <Shield className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2">Discovery Blind Spots</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed font-light">
+                      Students are unaware of active promotions, product stock, or operational status of merchants operating just feet away from their classrooms.
+                    </p>
+                  </div>
                 </div>
-                <h3
-                  className="text-lg font-semibold text-white mb-4"
-                  style={{ fontFamily: "'Sora', sans-serif" }}
-                >
-                  {item.title}
-                </h3>
-                <p
-                  className="text-sm leading-relaxed text-[#94A3B8]"
-                  style={{ fontFamily: "'Inter', sans-serif" }}
-                >
-                  {item.description}
-                </p>
               </motion.div>
-            );
-          })}
-        </motion.div>
-      </div>
 
-      <div
-        className="absolute bottom-0 left-0 w-full h-px"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(0, 61, 165, 0.2), transparent)' }}
-      />
-    </section>
-  );
+              <motion.div 
+                variants={itemVariants}
+                className="p-6 rounded-2xl bg-[#090d16] border border-gray-900 hover:border-gray-800 transition-colors"
+              >
+                <div className="flex gap-4 items-start">
+                  <div className="p-2.5 rounded-lg bg-gray-950 border border-gray-800 text-gray-400 mt-1">
+                    <Radio className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2">Scattered Broadcast Channels</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed font-light">
+                      Campus updates leak through scattered group chats, paper bulletins, and Instagram stories that disappear in 24 hours, diluting audience reach.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div 
+                variants={itemVariants}
+                className="p-6 rounded-2xl bg-[#090d16] border border-gray-900 hover:border-[#3c82f6]/20 transition-colors"
+              >
+                <div className="flex gap-4 items-start">
+                  <div className="p-2.5 rounded-lg bg-[#3c82f6]/5 border border-[#3c82f6]/20 text-[#3c82f6] mt-1">
+                    <Signal className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white mb-2">The Spectron Solution</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed font-light">
+                      We unify all campus nodes into a single, high-fidelity real-time visibility matrix. Discover operations, events, and commerce instantly from a centralized dashboard.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+
+            {/* Right: Interactive Cyber Grid Visual */}
+            <motion.div 
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="lg:col-span-6 p-8 rounded-2xl bg-[#080c15] border border-gray-800 hover:border-[#3c82f6]/30 transition-all duration-500 shadow-[0_0_30px_rgba(60,130,246,0.02)]"
+            >
+              <div className="flex items-center justify-between pb-6 border-b border-gray-900 mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-[#3c82f6] animate-ping" />
+                  <span className="text-xs font-mono tracking-wider text-white">SPECTRON CORE ACTIVE</span>
+                </div>
+                <span className="text-[10px] font-mono text-gray-500">SYSTEM STABLE // 99.9%</span>
+              </div>
+
+              {/* Grid Nodes */}
+              <div className="grid grid-cols-2 gap-4">
+                {activeNodes.map((node, index) => (
+                  <div 
+                    key={index} 
+                    className={`p-4 rounded-xl border transition-all duration-300 ${
+                      node.active 
+                        ? 'bg-[#0b101c] border-[#3c82f6]/20 hover:border-[#3c82f6]/50 shadow-[0_0_15px_rgba(60,130,246,0.05)]' 
+                        : 'bg-[#05080f] border-gray-900 opacity-40'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-mono text-gray-400 truncate max-w-[120px]">{node.name}</span>
+                      <span className={`text-[9px] font-mono px-1.5 py-0.5 rounded-sm ${
+                        node.active ? 'bg-[#3c82f6]/10 text-[#3c82f6]' : 'bg-gray-800 text-gray-500'
+                      }`}>
+                        {node.active ? 'ONLINE' : 'STBY'}
+                      </span>
+                    </div>
+                    <div className="h-1 w-full bg-gray-900 rounded-full overflow-hidden mt-3">
+                      <motion.div 
+                        initial={{ width: 0 }}
+                        whileInView={{ width: node.load }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1, delay: 0.2 }}
+                        className={`h-full ${node.active ? 'bg-[#3c82f6]' : 'bg-gray-700'}`}
+                      />
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="text-[9px] font-mono text-gray-500">TRAFFIC INDEX</span>
+                      <span className="text-[9px] font-mono text-gray-400">{node.active ? node.load : 'N/A'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 pt-6 border-t border-gray-900 flex justify-between items-center text-xs font-mono text-gray-400">
+                <span>LCU CLUSTER ID: 884-TX</span>
+                <span className="flex items-center gap-1 text-[#3c82f6] hover:underline cursor-pointer">
+                  LAUNCH MONITOR <ArrowRight className="w-3.5 h-3.5" />
+                </span>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Stats Section */}
+      <Stats />
+
+      {/* 4. Future Vision Section */}
+      <FutureVision />
+    </div>
+  )
 }
