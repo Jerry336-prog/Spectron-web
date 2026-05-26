@@ -101,8 +101,10 @@ body {
 }
 
 ::selection {
-  background: rgba(0, 61, 165, 0.4);
+  background: rgba(59, 130, 246, 0.4);
   color: #FFFFFF;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;

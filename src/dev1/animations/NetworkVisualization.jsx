@@ -1,11 +1,11 @@
 import { useRef, useEffect, useCallback } from 'react';
 
 const COLORS = {
-  node: '#003DA5',
-  nodeGlow: '#0088FF',
-  line: 'rgba(0, 61, 165, 0.15)',
-  lineActive: 'rgba(0, 136, 255, 0.3)',
-  particle: '#0088FF',
+  node: '#3c82f6',
+  nodeGlow: '#60a5fa',
+  line: 'rgba(59, 130, 246, 0.15)',
+  lineActive: 'rgba(96, 165, 250, 0.3)',
+  particle: '#3c82f6',
   bg: 'transparent',
 };
 
@@ -35,17 +35,17 @@ class Node {
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, r + 8, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 136, 255, ${0.05 + pulse * 0.08})`;
+    ctx.fillStyle = `rgba(96, 165, 250, ${0.05 + pulse * 0.08})`;
     ctx.fill();
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, r + 4, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 61, 165, ${0.1 + pulse * 0.15})`;
+    ctx.fillStyle = `rgba(59, 130, 246, ${0.1 + pulse * 0.15})`;
     ctx.fill();
 
     ctx.beginPath();
     ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 136, 255, ${0.7 + pulse * 0.3})`;
+    ctx.fillStyle = `rgba(96, 165, 250, ${0.7 + pulse * 0.3})`;
     ctx.fill();
   }
 }
@@ -69,7 +69,7 @@ class Particle {
 
     ctx.beginPath();
     ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 136, 255, ${0.8 - Math.abs(this.progress - 0.5) * 1.2})`;
+    ctx.fillStyle = `rgba(96, 165, 250, ${0.8 - Math.abs(this.progress - 0.5) * 1.2})`;
     ctx.fill();
   }
 }
@@ -143,9 +143,9 @@ export default function NetworkVisualization() {
           if (dist < connectionDist) {
             const opacity = (1 - dist / connectionDist) * 0.25;
             ctx.beginPath();
-            ctx.moveTo(nodes[i].x, nodes[j].y);
+            ctx.moveTo(nodes[i].x, nodes[i].y);
             ctx.lineTo(nodes[j].x, nodes[j].y);
-            ctx.strokeStyle = `rgba(0, 61, 165, ${opacity})`;
+            ctx.strokeStyle = `rgba(59, 130, 246, ${opacity})`;
             ctx.lineWidth = 0.8;
             ctx.stroke();
           }
@@ -176,8 +176,7 @@ export default function NetworkVisualization() {
   return (
     <canvas
       ref={canvasRef}
-      className="w-full h-full"
-      style={{ display: 'block' }}
+      className="w-full h-full block"
     />
   );
 }

@@ -1,162 +1,121 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 
-const BUSINESS_NAMES = [
-  'Campus Cafe', 'The Barber Shop', 'Book Hub', 'Tech Repairs',
-  'Print Station', 'Food Court', 'Study Lounge', 'Fashion Store',
-  'Tutoring Center', 'Photography', 'Laundry Express', 'Gym & Fitness',
+const BUSINESS_DATA = [
+  { name: 'Campus Cafe', category: 'Food & Drink', status: 'Active Now', deals: 'Free delivery to Hall 3', rating: '4.8', load: '92%', x_pct: 0.25, y_pct: 0.3 },
+  { name: 'The Barber Shop', category: 'Grooming', status: 'Active Now', deals: '10% off for freshmen', rating: '4.9', load: '85%', x_pct: 0.15, y_pct: 0.55 },
+  { name: 'Book Hub', category: 'Academics', status: 'Active Now', deals: 'Rent textbooks weekly', rating: '4.7', load: '60%', x_pct: 0.35, y_pct: 0.75 },
+  { name: 'Tech Repairs', category: 'Support', status: 'Active Now', deals: 'Free device checkups', rating: '4.9', load: '78%', x_pct: 0.5, y_pct: 0.8 },
+  { name: 'Print Station', category: 'Support', status: 'Active Now', deals: 'Bulk discount at Library', rating: '4.6', load: '88%', x_pct: 0.65, y_pct: 0.75 },
+  { name: 'Food Court', category: 'Food & Drink', status: 'Active Now', deals: 'Active combo packages', rating: '4.5', load: '95%', x_pct: 0.8, y_pct: 0.6 },
+  { name: 'Fashion Store', category: 'Retail', status: 'Active Now', deals: 'New arrivals ready', rating: '4.8', load: '40%', x_pct: 0.85, y_pct: 0.35 },
+  { name: 'Study Lounge', category: 'Academics', status: 'Active Now', deals: 'Quiet spaces open', rating: '4.9', load: '70%', x_pct: 0.65, y_pct: 0.2 },
+  { name: 'Laundry Express', category: 'Support', status: 'Active Now', deals: 'Express wash within 4h', rating: '4.7', load: '82%', x_pct: 0.35, y_pct: 0.2 },
 ];
 
-class BusinessNode {
-  constructor(x, y, name) {
-    this.x = x;
-    this.y = y;
-    this.targetX = x;
-    this.targetY = y;
-    this.name = name;
-    this.radius = 6;
-    this.pulsePhase = Math.random() * Math.PI * 2;
-    this.glowIntensity = Math.random() * 0.5 + 0.5;
-    this.users = [];
-  }
-
-  update() {
-    this.pulsePhase += 0.015;
-    this.x += (this.targetX - this.x) * 0.01;
-    this.y += (this.targetY - this.y) * 0.01;
-    this.targetX += (Math.random() - 0.5) * 0.3;
-    this.targetY += (Math.random() - 0.5) * 0.3;
-  }
-
-  draw(ctx) {
-    const pulse = Math.sin(this.pulsePhase) * 0.5 + 0.5;
-    const r = this.radius + pulse * 3;
-
-    // Outer glow
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, r + 20, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 136, 255, ${0.03 + pulse * 0.04})`;
-    ctx.fill();
-
-    // Mid glow
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, r + 10, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 61, 165, ${0.06 + pulse * 0.08})`;
-    ctx.fill();
-
-    // Core
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 136, 255, ${0.8 + pulse * 0.2})`;
-    ctx.fill();
-
-    // Inner bright spot
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, r * 0.4, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + pulse * 0.3})`;
-    ctx.fill();
-
-    // Name label
-    ctx.font = "11px 'Inter', sans-serif";
-    ctx.fillStyle = `rgba(148, 163, 184, ${0.5 + pulse * 0.3})`;
-    ctx.textAlign = 'center';
-    ctx.fillText(this.name, this.x, this.y + r + 18);
-  }
-}
-
-class UserNode {
-  constructor(parent) {
-    this.parent = parent;
-    this.angle = Math.random() * Math.PI * 2;
-    this.distance = Math.random() * 40 + 25;
-    this.speed = (Math.random() - 0.5) * 0.008;
-    this.radius = Math.random() * 1.5 + 0.8;
-    this.pulsePhase = Math.random() * Math.PI * 2;
-  }
-
-  update() {
-    this.angle += this.speed;
-    this.pulsePhase += 0.03;
-  }
-
-  draw(ctx) {
-    const x = this.parent.x + Math.cos(this.angle) * this.distance;
-    const y = this.parent.y + Math.sin(this.angle) * this.distance;
-    const pulse = Math.sin(this.pulsePhase) * 0.5 + 0.5;
-
-    ctx.beginPath();
-    ctx.arc(x, y, this.radius + pulse, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 102, 255, ${0.3 + pulse * 0.4})`;
-    ctx.fill();
-  }
-}
-
-class ConnectionParticle {
-  constructor(from, to) {
-    this.from = from;
-    this.to = to;
+class Particle {
+  constructor(fromX, fromY, toX, toY) {
+    this.fromX = fromX;
+    this.fromY = fromY;
+    this.toX = toX;
+    this.toY = toY;
     this.progress = Math.random();
-    this.speed = Math.random() * 0.003 + 0.001;
+    this.speed = Math.random() * 0.006 + 0.003;
   }
 
   update() {
     this.progress += this.speed;
-    if (this.progress > 1) this.progress = 0;
+    if (this.progress > 1) {
+      this.progress = 0;
+    }
   }
 
   draw(ctx) {
-    const x = this.from.x + (this.to.x - this.from.x) * this.progress;
-    const y = this.from.y + (this.to.y - this.from.y) * this.progress;
-    const alpha = 1 - Math.abs(this.progress - 0.5) * 2;
+    const x = this.fromX + (this.toX - this.fromX) * this.progress;
+    const y = this.fromY + (this.toY - this.fromY) * this.progress;
+    const size = 1.5;
+    const opacity = 1 - Math.abs(this.progress - 0.5) * 2;
 
     ctx.beginPath();
-    ctx.arc(x, y, 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(0, 136, 255, ${alpha * 0.6})`;
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(59, 130, 246, ${opacity * 0.85})`;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#3c82f6';
     ctx.fill();
+    ctx.shadowBlur = 0; // reset
   }
 }
 
 export default function NexusCanvas() {
   const canvasRef = useRef(null);
-  const stateRef = useRef({ businesses: [], particles: [] });
-  const animRef = useRef(null);
+  const containerRef = useRef(null);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const stateRef = useRef({
+    width: 0,
+    height: 0,
+    core: { x: 0, y: 0, r: 12 },
+    nodes: [],
+    particles: [],
+    gridLines: [],
+    mouse: { x: -1000, y: -1000 },
+  });
 
   const initNetwork = useCallback((w, h) => {
-    const businesses = [];
-    const padding = 80;
-    const cols = 4;
-    const rows = 3;
-    const cellW = (w - padding * 2) / cols;
-    const cellH = (h - padding * 2) / rows;
+    const state = stateRef.current;
+    state.width = w;
+    state.height = h;
+    state.core = { x: w / 2, y: h / 2, r: 10 };
 
-    for (let i = 0; i < BUSINESS_NAMES.length; i++) {
-      const col = i % cols;
-      const row = Math.floor(i / cols);
-      const x = padding + col * cellW + cellW / 2 + (Math.random() - 0.5) * cellW * 0.4;
-      const y = padding + row * cellH + cellH / 2 + (Math.random() - 0.5) * cellH * 0.4;
-      const biz = new BusinessNode(x, y, BUSINESS_NAMES[i]);
-
-      const userCount = Math.floor(Math.random() * 6) + 3;
-      for (let j = 0; j < userCount; j++) {
-        biz.users.push(new UserNode(biz));
+    // Build nodes matching percentages of layout size
+    state.nodes = BUSINESS_DATA.map((data) => {
+      const x = w * data.x_pct;
+      const y = h * data.y_pct;
+      
+      // Build orbiting students
+      const users = [];
+      const userCount = Math.floor(Math.random() * 5) + 3;
+      for (let i = 0; i < userCount; i++) {
+        users.push({
+          angle: Math.random() * Math.PI * 2,
+          dist: Math.random() * 25 + 20,
+          speed: (Math.random() - 0.5) * 0.015 + 0.005,
+          radius: Math.random() * 1.5 + 0.8,
+          phase: Math.random() * Math.PI * 2,
+        });
       }
-      businesses.push(biz);
-    }
 
-    const particles = [];
-    for (let i = 0; i < businesses.length; i++) {
-      for (let j = i + 1; j < businesses.length; j++) {
-        const dx = businesses[i].x - businesses[j].x;
-        const dy = businesses[i].y - businesses[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 300) {
-          for (let k = 0; k < 2; k++) {
-            particles.push(new ConnectionParticle(businesses[i], businesses[j]));
-          }
-        }
+      return {
+        x,
+        y,
+        originX: x,
+        originY: y,
+        vx: 0,
+        vy: 0,
+        r: 6,
+        pulsePhase: Math.random() * Math.PI * 2,
+        users,
+        data,
+      };
+    });
+
+    // Build connections and particles
+    state.particles = [];
+    state.nodes.forEach((node) => {
+      // Connect to Core
+      for (let i = 0; i < 2; i++) {
+        state.particles.push(new Particle(state.core.x, state.core.y, node.x, node.y));
+        state.particles.push(new Particle(node.x, node.y, state.core.x, state.core.y));
       }
-    }
+    });
 
-    stateRef.current = { businesses, particles };
+    // Build static digital grid elements
+    state.gridLines = [];
+    const step = 50;
+    for (let x = 0; x < w; x += step) {
+      state.gridLines.push({ x1: x, y1: 0, x2: x, y2: h, opacity: 0.02 + Math.random() * 0.02 });
+    }
+    for (let y = 0; y < h; y += step) {
+      state.gridLines.push({ x1: 0, y1: y, x2: w, y2: y, opacity: 0.02 + Math.random() * 0.02 });
+    }
   }, []);
 
   useEffect(() => {
@@ -165,7 +124,7 @@ export default function NexusCanvas() {
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    const resize = () => {
+    const handleResize = () => {
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
@@ -173,66 +132,285 @@ export default function NexusCanvas() {
       initNetwork(rect.width, rect.height);
     };
 
-    resize();
-    window.addEventListener('resize', resize);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    let animationFrameId;
+    let localHovered = null;
 
     const animate = () => {
-      const rect = canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      ctx.clearRect(0, 0, rect.width, rect.height);
+      const state = stateRef.current;
+      const w = state.width;
+      const h = state.height;
 
-      const { businesses, particles } = stateRef.current;
+      // Clear with slight trailing alpha for smooth flow
+      ctx.fillStyle = '#060a13';
+      ctx.fillRect(0, 0, w, h);
 
-      // Draw connections
-      for (let i = 0; i < businesses.length; i++) {
-        for (let j = i + 1; j < businesses.length; j++) {
-          const dx = businesses[i].x - businesses[j].x;
-          const dy = businesses[i].y - businesses[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 300) {
-            const opacity = (1 - dist / 300) * 0.12;
+      // 1. Draw Digital Grid Background
+      ctx.lineWidth = 0.5;
+      state.gridLines.forEach((line) => {
+        ctx.strokeStyle = `rgba(59, 130, 246, ${line.opacity})`;
+        ctx.beginPath();
+        ctx.moveTo(line.x1, line.y1);
+        ctx.lineTo(line.x2, line.y2);
+        ctx.stroke();
+      });
+
+      // 2. Draw Connection Lines
+      ctx.shadowBlur = 0;
+      state.nodes.forEach((node) => {
+        const dx = node.x - state.core.x;
+        const dy = node.y - state.core.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Core to Node Link with glowing beam effect
+        const gradient = ctx.createLinearGradient(state.core.x, state.core.y, node.x, node.y);
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.05)');
+        gradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.15)');
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(state.core.x, state.core.y);
+        ctx.lineTo(node.x, node.y);
+        ctx.stroke();
+
+        // Subtly connect nodes near each other
+        state.nodes.forEach((otherNode) => {
+          if (otherNode === node) return;
+          const odx = otherNode.x - node.x;
+          const ody = otherNode.y - node.y;
+          const odist = Math.sqrt(odx * odx + ody * ody);
+          if (odist < 140) {
+            ctx.strokeStyle = `rgba(59, 130, 246, ${(1 - odist / 140) * 0.06})`;
             ctx.beginPath();
-            ctx.moveTo(businesses[i].x, businesses[i].y);
-            ctx.lineTo(businesses[j].x, businesses[j].y);
-            ctx.strokeStyle = `rgba(0, 61, 165, ${opacity})`;
-            ctx.lineWidth = 0.6;
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(otherNode.x, otherNode.y);
             ctx.stroke();
           }
-        }
-      }
+        });
+      });
 
-      // Update and draw particles
-      particles.forEach((p) => {
+      // 3. Update & Draw Particles along lines
+      state.particles.forEach((p) => {
         p.update();
         p.draw(ctx);
       });
 
-      // Update and draw businesses and their users
-      businesses.forEach((biz) => {
-        biz.update();
-        biz.users.forEach((user) => {
-          user.update();
-          user.draw(ctx);
+      // 4. Update & Draw Core
+      const pulseTime = Date.now() * 0.0025;
+      const corePulse = Math.sin(pulseTime) * 0.15 + 1;
+      const coreX = state.core.x;
+      const coreY = state.core.y;
+
+      // Outer rings of central Core
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(coreX, coreY, state.core.r * 3.5 * corePulse, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(59, 130, 246, 0.1)';
+      ctx.beginPath();
+      ctx.arc(coreX, coreY, state.core.r * 6 * corePulse, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Main core glowing ball
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = '#3c82f6';
+      ctx.beginPath();
+      ctx.arc(coreX, coreY, state.core.r * 1.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#3c82f6';
+      ctx.fill();
+      ctx.shadowBlur = 0; // reset
+
+      // Core interior details
+      ctx.beginPath();
+      ctx.arc(coreX, coreY, state.core.r * 0.8, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+
+      // Core HUD Text
+      ctx.font = "9px 'Space Grotesk', sans-serif";
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign = 'center';
+      ctx.fillText("SPECTRON ENGINE CORE", coreX, coreY - 24);
+
+      // 5. Update & Draw Business Nodes
+      localHovered = null;
+
+      state.nodes.forEach((node) => {
+        node.pulsePhase += 0.02;
+        const pulse = Math.sin(node.pulsePhase) * 0.5 + 0.5;
+
+        // Apply gentle floating drift
+        const driftAmp = 0.12;
+        node.x = node.originX + Math.sin(node.pulsePhase * 0.5) * 8 * driftAmp;
+        node.y = node.originY + Math.cos(node.pulsePhase * 0.5) * 8 * driftAmp;
+
+        // Check hover
+        const distToMouse = Math.hypot(node.x - state.mouse.x, node.y - state.mouse.y);
+        const isHovered = distToMouse < 22;
+
+        if (isHovered) {
+          localHovered = node.data;
+        }
+
+        const sizeMult = isHovered ? 1.5 : 1;
+        const radius = node.r * sizeMult;
+
+        // Visual links around the star node
+        if (isHovered) {
+          ctx.strokeStyle = '#3c82f6';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, radius * 3.5, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Cyberreticle overlay
+          ctx.setLineDash([2, 4]);
+          ctx.strokeStyle = 'rgba(59, 130, 246, 0.6)';
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, radius * 5.5, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // Star glowing aura
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius + 15 * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = isHovered ? 'rgba(59, 130, 246, 0.15)' : `rgba(59, 130, 246, ${0.03 + pulse * 0.05})`;
+        ctx.fill();
+
+        // Node core
+        ctx.shadowBlur = isHovered ? 15 : 6;
+        ctx.shadowColor = '#3c82f6';
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = isHovered ? '#FFFFFF' : '#3c82f6';
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset
+
+        // Center pinpoint
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, radius * 0.4, 0, Math.PI * 2);
+        ctx.fillStyle = isHovered ? '#3c82f6' : '#FFFFFF';
+        ctx.fill();
+
+        // Draw orbiting student dots around the merchants
+        node.users.forEach((u) => {
+          u.angle += u.speed;
+          u.phase += 0.04;
+          const upulse = Math.sin(u.phase) * 0.5 + 0.5;
+
+          const ux = node.x + Math.cos(u.angle) * (u.dist + upulse * 3);
+          const uy = node.y + Math.sin(u.angle) * (u.dist + upulse * 3);
+
+          ctx.beginPath();
+          ctx.arc(ux, uy, u.radius + upulse * 0.5, 0, Math.PI * 2);
+          ctx.fillStyle = isHovered ? 'rgba(59, 130, 246, 0.95)' : `rgba(59, 130, 246, ${0.45 + upulse * 0.4})`;
+          ctx.fill();
         });
-        biz.draw(ctx);
+
+        // Business Label
+        ctx.font = isHovered ? "bold 11px 'Space Grotesk', sans-serif" : "11px 'Inter', sans-serif";
+        ctx.fillStyle = isHovered ? '#FFFFFF' : 'rgba(148, 163, 184, 0.65)';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.data.name, node.x, node.y + radius + 18);
       });
 
-      animRef.current = requestAnimationFrame(animate);
+      // 6. Draw HUD Tooltip panel for hovered business
+      if (localHovered) {
+        setHoveredNode(localHovered);
+      } else {
+        setHoveredNode(null);
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
     };
 
     animate();
 
     return () => {
-      window.removeEventListener('resize', resize);
-      if (animRef.current) cancelAnimationFrame(animRef.current);
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
     };
   }, [initNetwork]);
 
+  const handleMouseMove = (e) => {
+    if (!canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    stateRef.current.mouse = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    };
+  };
+
+  const handleMouseLeave = () => {
+    stateRef.current.mouse = { x: -1000, y: -1000 };
+    setHoveredNode(null);
+  };
+
   return (
-    <canvas
-      ref={canvasRef}
-      className="w-full h-full"
-      style={{ display: 'block' }}
-    />
+    <div
+      ref={containerRef}
+      className="w-full h-full relative"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <canvas ref={canvasRef} className="w-full h-full block cursor-crosshair" />
+
+      {/* Cybernetic HUD Overlay Card */}
+      {hoveredNode && (
+        <div
+          className="absolute bottom-8 left-8 right-8 md:right-auto md:w-80 p-5 rounded-xl border border-[#3c82f6]/30 bg-[#090d16]/95 backdrop-blur-md shadow-[0_15px_40px_rgba(59,130,246,0.15)] flex flex-col gap-3 font-sans animate-fade-in"
+          style={{ transition: 'opacity 0.2s ease' }}
+        >
+          <div className="flex justify-between items-start pb-2.5 border-b border-slate-900">
+            <div>
+              <span className="text-[9px] font-mono tracking-wider text-[#3c82f6] uppercase">{hoveredNode.category}</span>
+              <h4 className="text-sm font-bold text-white font-heading mt-0.5">{hoveredNode.name}</h4>
+            </div>
+            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20">
+              {hoveredNode.status}
+            </span>
+          </div>
+
+          <div className="space-y-2.5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-[#64748B]">Active Campaign</span>
+              <span className="text-white font-medium">{hoveredNode.deals}</span>
+            </div>
+            
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-[#64748B]">Reputation Score</span>
+              <span className="text-[#0088FF] font-semibold">★ {hoveredNode.rating} / 5.0</span>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex justify-between text-[10px] font-mono text-[#64748B]">
+                <span>ENGAGEMENT TRAFFIC INDEX</span>
+                <span>{hoveredNode.load}</span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#3c82f6] rounded-full"
+                  style={{ width: hoveredNode.load }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Grid Coordinates Label Layer */}
+      <div className="absolute top-4 right-4 text-[9px] font-mono text-[#64748B]/40 pointer-events-none text-right hidden sm:block">
+        GRID INDEX // LCU-SEC4<br />
+        SYNC STATS // ACTIVE<br />
+        COORD // 7°26'N 3°54'E
+      </div>
+    </div>
   );
 }
